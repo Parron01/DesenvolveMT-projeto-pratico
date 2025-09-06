@@ -1,69 +1,94 @@
-# React + TypeScript + Vite
+# DesenvolveMT - Sistema de Consulta de Pessoas Desaparecidas
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> **Projeto Prático** - Processo Seletivo Desenvolve MT  
+> Sistema web para consulta de pessoas desaparecidas da Polícia Judiciária Civil de Mato Grosso
 
-Currently, two official plugins are available:
+## 📋 Sobre o Projeto
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Single Page Application (SPA) desenvolvida para permitir que cidadãos:
+- Consultem registros de pessoas desaparecidas ou localizadas
+- Enviem informações adicionais (observações, localização, fotos) sobre essas pessoas
 
-## Expanding the ESLint configuration
+**API Base:** [ABITUS API - Polícia Civil MT](https://abitus-api.geia.vip/swagger-ui/index.html)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🛠️ Tecnologias
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **React 19** + TypeScript
+- **Vite** (build tool)
+- **Tailwind CSS v4** (estilização)
+- **Docker** + Nginx (containerização)
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+## 🚀 Como Executar
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Desenvolvimento Local
+
+```bash
+# 1. Instalar dependências
+npm install
+
+# 2. Executar em modo desenvolvimento
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+**Acesso:** http://localhost:5173
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Com Docker
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+# 1. Build e execução
+docker-compose up -d --build
+
+# 2. Ver logs (opcional)
+docker-compose logs -f
+
+# 3. Parar containers
+docker-compose down
 ```
+
+**Acesso:** http://localhost:5173
+
+## 📁 Estrutura do Projeto
+
+```
+src/
+├── components/
+│   └── HelloWorld.tsx
+├── pages/
+│   └── HomePage.tsx
+├── App.tsx
+├── main.tsx
+└── index.css
+```
+
+## 🎯 Funcionalidades Implementadas
+
+- [x] Configuração base React + Vite + TypeScript
+- [x] Setup Tailwind CSS v4
+- [x] Containerização Docker + Nginx
+- [x] Estrutura de componentes organizados
+- [ ] Integração com API ABITUS
+- [ ] Listagem de pessoas desaparecidas
+- [ ] Sistema de busca e filtros
+- [ ] Detalhamento de registros
+- [ ] Formulário de informações
+- [ ] Upload de fotos
+
+## 📦 Scripts Disponíveis
+
+```bash
+npm run dev         # Desenvolvimento local
+npm run build       # Build para produção
+npm run preview     # Preview do build
+npm run lint        # Linting do código
+```
+
+## 🐳 Docker
+
+O projeto inclui configuração completa para containerização:
+- **Dockerfile** multi-stage (Node.js + Nginx)
+- **docker-compose.yml** para orquestração
+- **nginx.conf** otimizado para SPA
+
+---
+
+**Desenvolvido para:** Processo Seletivo Desenvolve MT  
