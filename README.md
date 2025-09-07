@@ -1,94 +1,98 @@
-# DesenvolveMT - Sistema de Consulta de Pessoas Desaparecidas
+# DesenvolveMT – Projeto Prático (ABITUS)
 
-> **Projeto Prático** - Processo Seletivo Desenvolve MT  
-> Sistema web para consulta de pessoas desaparecidas da Polícia Judiciária Civil de Mato Grosso
+SPA para consulta de pessoas **desaparecidas/localizadas** e **envio de informações** (texto, localização textual e fotos) para a Polícia Civil de MT.
 
-## 📋 Sobre o Projeto
-
-Single Page Application (SPA) desenvolvida para permitir que cidadãos:
-- Consultem registros de pessoas desaparecidas ou localizadas
-- Enviem informações adicionais (observações, localização, fotos) sobre essas pessoas
-
-**API Base:** [ABITUS API - Polícia Civil MT](https://abitus-api.geia.vip/swagger-ui/index.html)
-
-## 🛠️ Tecnologias
-
-- **React 19** + TypeScript
-- **Vite** (build tool)
-- **Tailwind CSS v4** (estilização)
-- **Docker** + Nginx (containerização)
-
-## 🚀 Como Executar
-
-### Desenvolvimento Local
-
-```bash
-# 1. Instalar dependências
-npm install
-
-# 2. Executar em modo desenvolvimento
-npm run dev
-```
-
-**Acesso:** http://localhost:5173
-
-### Com Docker
-
-```bash
-# 1. Build e execução
-docker-compose up -d --build
-
-# 2. Ver logs (opcional)
-docker-compose logs -f
-
-# 3. Parar containers
-docker-compose down
-```
-
-**Acesso:** http://localhost:5173
-
-## 📁 Estrutura do Projeto
-
-```
-src/
-├── components/
-│   └── HelloWorld.tsx
-├── pages/
-│   └── HomePage.tsx
-├── App.tsx
-├── main.tsx
-└── index.css
-```
-
-## 🎯 Funcionalidades Implementadas
-
-- [x] Configuração base React + Vite + TypeScript
-- [x] Setup Tailwind CSS v4
-- [x] Containerização Docker + Nginx
-- [x] Estrutura de componentes organizados
-- [ ] Integração com API ABITUS
-- [ ] Listagem de pessoas desaparecidas
-- [ ] Sistema de busca e filtros
-- [ ] Detalhamento de registros
-- [ ] Formulário de informações
-- [ ] Upload de fotos
-
-## 📦 Scripts Disponíveis
-
-```bash
-npm run dev         # Desenvolvimento local
-npm run build       # Build para produção
-npm run preview     # Preview do build
-npm run lint        # Linting do código
-```
-
-## 🐳 Docker
-
-O projeto inclui configuração completa para containerização:
-- **Dockerfile** multi-stage (Node.js + Nginx)
-- **docker-compose.yml** para orquestração
-- **nginx.conf** otimizado para SPA
+**Swagger:** [https://abitus-api.geia.vip/swagger-ui/index.html](https://abitus-api.geia.vip/swagger-ui/index.html)
 
 ---
 
-**Desenvolvido para:** Processo Seletivo Desenvolve MT  
+## Tecnologias
+
+* React 19 + TypeScript • Vite
+* Tailwind CSS v4
+* React Router v6 (lazy routes)
+* Axios • React Toastify • Lucide
+* Docker + Nginx
+
+---
+
+## Como executar
+
+### Requisitos
+
+* Node 20+
+* (Opcional) Docker
+
+### Local
+
+```bash
+git clone https://github.com/Parron01/DesenvolveMT-projeto-pratico.git
+cd desenvolvemt-projeto-pratico
+npm install
+npm run dev
+```
+
+Acesse: **[http://localhost:5173](http://localhost:5173)**
+
+### Docker
+
+```bash
+docker-compose up -d --build
+# para encerrar: docker-compose down
+```
+
+Acesse: **[http://localhost:5173](http://localhost:5173)**
+
+### Variáveis de ambiente
+
+Crie `.env` na raiz:
+
+```
+VITE_API_BASE_URL=https://abitus-api.geia.vip
+VITE_API_TIMEOUT_MS=10000
+```
+
+---
+
+## O que foi implementado
+
+* Lista com **cards**, busca e **paginação (10/pg)**
+* **Detalhe** com badge de status (Desaparecida/Localizada)
+* **Modal “Enviar informação”** com máscaras (data/telefone), upload de **até 5 fotos** (validação de tipo/tamanho)
+* **Lazy loading** nas rotas e layout **responsivo**
+* Tratamento de erros com **toasts**
+
+---
+
+## Fluxos principais
+
+1. **Lista/Busca** – filtros por nome, faixa etária, sexo e status; paginação.
+2. **Detalhe** – exibe dados, cartazes (quando houver) e informações já enviadas.
+3. **Enviar informação** – texto livre (inclua aqui localização e horário), data (**YYYY-MM-DD** no envio) e fotos. Sem autenticação.
+
+---
+
+## Endpoints utilizados
+
+* `GET /v1/pessoas/aberto/estatistico`
+* `GET /v1/pessoas/aberto/filtro`
+* `GET /v1/pessoas/{id}`
+* `GET /v1/ocorrencias/informacoes-desaparecido?ocorrenciaId={ocoId}`
+* `POST /v1/ocorrencias/informacoes-desaparecido`
+
+  * **Query:** `informacao`, `descricao`, `data (YYYY-MM-DD)`, `ocoId`
+  * **Body (multipart):** `files[]` (opcional)
+
+
+---
+
+## Scripts
+
+```bash
+npm run dev       # desenvolvimento
+npm run build     # produção
+npm run preview   # preview do build
+npm run lint      # lint do código
+```
+
+---
