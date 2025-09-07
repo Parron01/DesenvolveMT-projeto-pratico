@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useRef } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../routes/axios'
 import type { OcorrenciaInformacaoDTO, OcorrenciaDTO } from '../models/OcorrenciaDTO'
 import type { PessoaDTO } from '../models/PessoaDTO'
 import { Badge } from '../components/Badge'
 import { toast } from 'react-toastify'
-import { ArrowLeft, CalendarDays, MapPin, Image as ImageIcon, Info as InfoIcon, User as UserIcon, UploadCloud } from 'lucide-react'
+import { ArrowLeft, CalendarDays, MapPin, Image as ImageIcon, Info as InfoIcon, User as UserIcon, UploadCloud, Eye, ArrowRight, FileText } from 'lucide-react'
 
 function getStatus(oco?: OcorrenciaDTO) {
   return oco?.dataLocalizacao ? 'LOCALIZADO' as const : 'DESAPARECIDO' as const
@@ -16,6 +16,10 @@ function formatDateBR(value?: string) {
   const d = new Date(value)
   if (isNaN(d.getTime())) return ''
   return d.toLocaleDateString('pt-BR')
+}
+
+function isPdf(url: string): boolean {
+  return url.toLowerCase().includes('.pdf')
 }
 
 function diffDays(start?: string, end?: string): number | null {
@@ -39,6 +43,13 @@ export default function PessoaDetalhePage() {
 
   const [infos, setInfos] = useState<OcorrenciaInformacaoDTO[]>([])
   const [isLoadingInfos, setIsLoadingInfos] = useState(false)
+
+  // Estados para modal de imagem e destaque
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null)
+  const [highlightedInfoId, setHighlightedInfoId] = useState<number | null>(null)
+  const [highlightedImageUrl, setHighlightedImageUrl] = useState<string | null>(null)
+  const infoRefs = useRef<Record<number, HTMLLIElement | null>>({})
+  const imageRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
   const status = useMemo(() => getStatus(pessoa?.ultimaOcorrencia), [pessoa])
   const tone = status === 'LOCALIZADO' ? 'success' : 'danger'
@@ -106,6 +117,22 @@ export default function PessoaDetalhePage() {
     if (ocoId) loadInfos(ocoId)
   }, [pessoa?.ultimaOcorrencia?.ocoId])
 
+  // Limpar destaque após 5 segundos
+  useEffect(() => {
+    if (highlightedInfoId) {
+      const timer = setTimeout(() => setHighlightedInfoId(null), 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [highlightedInfoId])
+
+  // Limpar destaque da imagem após 5 segundos
+  useEffect(() => {
+    if (highlightedImageUrl) {
+      const timer = setTimeout(() => setHighlightedImageUrl(null), 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [highlightedImageUrl])
+
   if (notFound) {
     return (
       <div className="min-h-screen bg-neutral-100">
@@ -161,10 +188,12 @@ export default function PessoaDetalhePage() {
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <Badge tone={tone as any}>{status}</Badge>
-                    {/* Insight: total de dias desaparecido (apenas quando localizado e com datas válidas) */}
+                    {/* Insight: total de dias desaparecido (para localizados: até a data de localização; para desaparecidos: até hoje) */}
                     {(() => {
                       const oco = pessoa.ultimaOcorrencia
-                      const days = oco?.dataLocalizacao ? diffDays(oco?.dtDesaparecimento, oco?.dataLocalizacao) : null
+                      if (!oco?.dtDesaparecimento) return null
+                      const endRef = oco.dataLocalizacao ?? new Date().toISOString()
+                      const days = diffDays(oco.dtDesaparecimento, endRef)
                       if (days == null) return null
                       return (
                         <Badge tone="danger">{days === 1 ? 'Desaparecido por 1 dia' : `Desaparecido por ${days} dias`}</Badge>
@@ -265,28 +294,49 @@ export default function PessoaDetalhePage() {
               </div>
             ) : tab === 'fotos' ? (
               <div className="rounded-lg border bg-white p-6">
-        <h3 className="text-lg font-semibold text-neutral-900 inline-flex items-center gap-2"><ImageIcon className="h-5 w-5" /> Fotos e Cartazes</h3>
+        <h3 className="text-lg font-semibold text-neutral-900 inline-flex items-center gap-2"><ImageIcon className="h-5 w-5" /> Fotos</h3>
                 <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                  {/* Foto principal */}
-                  {pessoa?.urlFoto && (
-          <img src={pessoa.urlFoto} alt={`Foto de ${pessoa.nome}`} className="w-full h-40 object-cover rounded-md border ring-1 ring-neutral-200" loading="lazy" />
-                  )}
-                  {/* Cartazes */}
-                  {oco?.listaCartaz?.length ? (
-                    oco.listaCartaz.map((c, idx) => {
-                      const isImg = c.tipoCartaz.includes('JPG') || c.tipoCartaz.includes('INSTA')
-                      return isImg ? (
-            <img key={idx} src={c.urlCartaz} alt={c.tipoCartaz} className="w-full h-40 object-cover rounded-md border ring-1 ring-neutral-200" loading="lazy" />
+                  {infos.flatMap(info => (info.anexos || []).map(anexo => ({ url: anexo, info }))).map(({ url, info }, idx) => (
+                    <div
+                      key={idx}
+                      ref={el => { imageRefs.current[url] = el }}
+                      className={`relative group rounded-md overflow-hidden ${highlightedImageUrl === url ? 'ring-4 ring-brand-accent animate-pulse shadow-lg' : ''}`}
+                    >
+                      {isPdf(url) ? (
+                        <div className="w-full h-40 bg-neutral-100 border flex items-center justify-center">
+                          <FileText className="h-12 w-12 text-neutral-500" />
+                        </div>
                       ) : (
-            <a key={idx} href={c.urlCartaz} target="_blank" rel="noreferrer" className="h-40 border rounded-md grid place-items-center text-sm text-brand-primary hover:underline bg-neutral-50">
-                          Abrir {c.tipoCartaz}
-                        </a>
-                      )
-                    })
-                  ) : null}
+                        <img src={url} alt={`Anexo ${idx + 1}`} className="w-full h-40 object-cover" loading="lazy" />
+                      )}
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => setSelectedImageUrl(url)}
+                          className="p-2 bg-white/80 rounded-full hover:bg-white transition"
+                          title="Visualizar"
+                        >
+                          <Eye className="h-5 w-5 text-neutral-900" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setTab('informacoes')
+                            setHighlightedInfoId(info.id ?? 0)
+                            setTimeout(() => {
+                              const el = infoRefs.current[info.id ?? 0]
+                              if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                            }, 100)
+                          }}
+                          className="p-2 bg-white/80 rounded-full hover:bg-white transition"
+                          title="Ver informação relacionada"
+                        >
+                          <ArrowRight className="h-5 w-5 text-neutral-900" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                {!pessoa?.urlFoto && !oco?.listaCartaz?.length && (
-          <p className="text-sm text-neutral-600">Sem fotos/cartazes</p>
+                {infos.flatMap(info => info.anexos || []).length === 0 && (
+          <p className="text-sm text-neutral-600">Sem fotos</p>
                 )}
               </div>
             ) : (
@@ -298,13 +348,31 @@ export default function PessoaDetalhePage() {
                   <div className="mt-4 max-h-[60vh] overflow-y-auto pr-1" role="region" aria-label="Lista de informações enviadas">
                     <ul className="space-y-4">
                       {infos.map(info => (
-                        <li key={info.id ?? `${info.ocoId}-${info.data}-${info.informacao.slice(0, 10)}`} className="rounded-md border p-4">
+                        <li
+                          key={info.id ?? `${info.ocoId}-${info.data}-${info.informacao.slice(0, 10)}`}
+                          ref={el => { if (info.id) infoRefs.current[info.id] = el }}
+                          className={`rounded-md border p-4 transition-all duration-500 ${highlightedInfoId === info.id ? 'bg-blue-50 shadow-lg ring-2 ring-blue-300 animate-pulse' : ''}`}
+                        >
               <div className="text-xs text-neutral-500 inline-flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" /> {formatDateBR(info.data)}</div>
               <div className="text-sm text-neutral-900 mt-1 whitespace-pre-wrap font-medium">{info.informacao}</div>
                           {info.anexos?.length ? (
                             <div className="mt-2 flex flex-wrap gap-2">
-                              {info.anexos.map((a, idx) => (
-                                <a key={idx} href={a} target="_blank" rel="noreferrer" className="text-xs text-brand-primary hover:underline">Anexo {idx + 1}</a>
+                              {info.anexos.map((anexo, idx) => (
+                                <button
+                                  key={idx}
+                                  onClick={() => {
+                                    setTab('fotos')
+                                    setHighlightedImageUrl(anexo)
+                                    setTimeout(() => {
+                                      const el = imageRefs.current[anexo]
+                                      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                                    }, 100)
+                                  }}
+                                  className="inline-flex items-center rounded-full border border-blue-300 bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 hover:bg-blue-100 transition"
+                                  title={`Ver anexo ${idx + 1}`}
+                                >
+                                  Anexo {idx + 1}
+                                </button>
                               ))}
                             </div>
                           ) : null}
@@ -320,6 +388,26 @@ export default function PessoaDetalhePage() {
           </div>
         </section>
       </main>
+
+      {/* Modal para visualizar imagem ou PDF */}
+      {selectedImageUrl && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50" onClick={() => setSelectedImageUrl(null)}>
+          <div className="relative max-w-4xl max-h-full p-4">
+            {isPdf(selectedImageUrl) ? (
+              <iframe src={selectedImageUrl} className="w-full h-[80vh]" title="PDF Viewer" />
+            ) : (
+              <img src={selectedImageUrl} alt="Imagem ampliada" className="max-w-full max-h-full object-contain" />
+            )}
+            <button
+              onClick={() => setSelectedImageUrl(null)}
+              className="absolute top-2 right-2 p-2 bg-white/80 rounded-full hover:bg-white transition"
+              title="Fechar"
+            >
+              <ArrowLeft className="h-5 w-5 text-neutral-900 rotate-45" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
