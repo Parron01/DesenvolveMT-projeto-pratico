@@ -1,6 +1,9 @@
+// #region Imports
 import { Eye, ArrowRight, FileText } from 'lucide-react'
 import type { OcorrenciaInformacaoDTO } from '../../models/OcorrenciaDTO'
+// #endregion
 
+// #region Tipos/Props
 interface MediaItem {
   url: string
   info: OcorrenciaInformacaoDTO
@@ -13,16 +16,22 @@ interface MediaGridProps {
   onGoToInfo: (infoId: number | undefined) => void
   imageRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>
 }
+// #endregion
 
+// #region Utils
 function isPdf(url: string): boolean {
   return url.toLowerCase().includes('.pdf')
 }
+// #endregion
 
 export function MediaGrid({ infos, highlightedImageUrl, onViewImage, onGoToInfo, imageRefs }: MediaGridProps) {
+  // #region Memos
   const mediaItems: MediaItem[] = infos.flatMap(info =>
     (info.anexos || []).map(anexo => ({ url: anexo, info }))
   )
+  // #endregion
 
+  // #region Render
   return (
     <div className="rounded-lg border bg-white p-6">
       <h3 className="text-lg font-semibold text-neutral-900 inline-flex items-center gap-2">
@@ -44,20 +53,20 @@ export function MediaGrid({ infos, highlightedImageUrl, onViewImage, onGoToInfo,
             ) : (
               <img src={url} alt={`Anexo ${idx + 1}`} className="w-full h-40 object-cover" loading="lazy" />
             )}
-            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center gap-2">
+            <div className="absolute inset-0 bg-black/50 opacity-100 transition-opacity rounded-md flex items-center justify-center gap-2">
               <button
                 onClick={() => onViewImage(url)}
-                className="p-2 bg-white/80 rounded-full hover:bg-white transition cursor-pointer"
+                className="p-3 md:p-2 bg-white/80 rounded-full hover:bg-white transition cursor-pointer"
                 title="Visualizar"
               >
-                <Eye className="h-5 w-5 text-neutral-900" />
+                <Eye className="h-6 w-6 md:h-5 md:w-5 text-neutral-900" />
               </button>
               <button
                 onClick={() => onGoToInfo(info.id)}
-                className="p-2 bg-white/80 rounded-full hover:bg-white transition cursor-pointer"
+                className="p-3 md:p-2 bg-white/80 rounded-full hover:bg-white transition cursor-pointer"
                 title="Ver informação relacionada"
               >
-                <ArrowRight className="h-5 w-5 text-neutral-900" />
+                <ArrowRight className="h-6 w-6 md:h-5 md:w-5 text-neutral-900" />
               </button>
             </div>
           </div>
@@ -68,4 +77,5 @@ export function MediaGrid({ infos, highlightedImageUrl, onViewImage, onGoToInfo,
       )}
     </div>
   )
+  // #endregion
 }

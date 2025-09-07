@@ -1,20 +1,18 @@
+// #region Imports
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { usePessoas } from '../hooks/usePessoas'
 import type { FiltrosLista, StatusPessoa } from '../models/PessoaDTO'
 import { FiltersPanel } from '../components/homePage/FiltersPanel'
 import { PeopleGrid } from '../components/homePage/PeopleGrid'
+// #endregion
+
+// #region Tipos/Props
+type LocalFilters = Pick<FiltrosLista, 'nome' | 'faixaIdadeInicial' | 'faixaIdadeFinal' | 'sexo' | 'status'> & { pagina: number }
+// #endregion
 
 export function HomePage() {
-  // #region Hooks
-  const { people, isLoading: isLoadingList, kpis, pageMeta, reload } = usePessoas()
-  const [searchParams, setSearchParams] = useSearchParams()
-
-  // #endregion
-
-  // #region Local state (filters + pagination)
-  const POR_PAGINA = 10
-  type LocalFilters = Pick<FiltrosLista, 'nome' | 'faixaIdadeInicial' | 'faixaIdadeFinal' | 'sexo' | 'status'> & { pagina: number }
+  // #region Estado
   const [filters, setFilters] = useState<LocalFilters>({
     nome: '',
     faixaIdadeInicial: undefined,
@@ -23,7 +21,14 @@ export function HomePage() {
     status: undefined,
     pagina: 0,
   })
+  // #endregion
 
+  // #region Hooks
+  const { people, isLoading: isLoadingList, kpis, pageMeta, reload } = usePessoas()
+  const [searchParams, setSearchParams] = useSearchParams()
+  // #endregion
+
+  // #region Efeitos
   // Load filters from URL on mount and observe changes
   useEffect(() => {
     const nome = searchParams.get('nome') || ''
@@ -46,7 +51,9 @@ export function HomePage() {
       porPagina: POR_PAGINA,
     })
   }, [searchParams, reload])
+  // #endregion
 
+  // #region Handlers/Callbacks
   const onFilter = (partial: Partial<LocalFilters>) => {
     setFilters(prev => ({ ...prev, ...partial }))
   }
@@ -72,16 +79,20 @@ export function HomePage() {
     setFilters({ nome: '', faixaIdadeInicial: undefined, faixaIdadeFinal: undefined, sexo: undefined, status: undefined, pagina: 0 })
     setSearchParams(new URLSearchParams())
   }
-
   // #endregion
 
-  // #region API-driven pagination meta
+  // #region Constantes
+  const POR_PAGINA = 10
+  // #endregion
+
+  // #region Derivações/Memos
   const currentItems = people
   const currentPageNumber = pageMeta?.number ?? filters.pagina
   const totalPages = pageMeta?.totalPages ?? 1
   const totalElements = pageMeta?.totalElements ?? currentItems.length
   // #endregion
 
+  // #region Render (JSX)
   return (
     <div className="min-h-screen bg-neutral-100">
       {/* Header */}
@@ -104,7 +115,8 @@ export function HomePage() {
           onFilter={onFilter}
           onReset={resetFilters}
           onApply={onApply}
-        />  <PeopleGrid
+        />
+        <PeopleGrid
           items={currentItems}
           totalElements={totalElements}
           totalPages={totalPages}
@@ -115,4 +127,5 @@ export function HomePage() {
       </main>
     </div>
   )
+  // #endregion
 }

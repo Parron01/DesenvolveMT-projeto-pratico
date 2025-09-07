@@ -1,15 +1,22 @@
+// #region Imports
 import { ArrowLeft } from 'lucide-react'
+// #endregion
 
+// #region Tipos/Props
 interface MediaModalProps {
   selectedImageUrl: string | null
   onClose: () => void
 }
+// #endregion
 
+// #region Utils
 function isPdf(url: string): boolean {
   return url.toLowerCase().includes('.pdf')
 }
+// #endregion
 
 export function MediaModal({ selectedImageUrl, onClose }: MediaModalProps) {
+  // #region Render
   if (!selectedImageUrl) return null
 
   return (
@@ -30,4 +37,5 @@ export function MediaModal({ selectedImageUrl, onClose }: MediaModalProps) {
       </div>
     </div>
   )
+  // #endregion
 }

@@ -1,53 +1,59 @@
-import React, { useMemo, useState, useCallback } from "react";
-import { Modal } from "./Modal";
-import { formatDateISO, isValidISODate } from "../utils/date";
-import { getImageExtensions, validateImages } from "../utils/files";
-import { formatDate, formatTime, formatPhone, formatEmail } from "../utils/masks";
-import { postInfoOcorrencia } from "../services/occurrences";
-import { toast } from "react-toastify";
+// #region Imports
+import React, { useMemo, useState, useCallback } from "react"
+import { Modal } from "./Modal"
+import { formatDateISO, isValidISODate } from "../utils/date"
+import { getImageExtensions, validateImages } from "../utils/files"
+import { formatDate, formatTime, formatPhone, formatEmail } from "../utils/masks"
+import { postInfoOcorrencia } from "../services/occurrences"
+import { toast } from "react-toastify"
+// #endregion
 
+// #region Tipos/Props
 interface Props {
-  isOpen: boolean;
-  onClose: () => void;
-  pessoaNome: string;
-  ocoId?: number; // disable submit when absent
-  onSuccess?: () => void; // called after successful submit to refresh timeline
+  isOpen: boolean
+  onClose: () => void
+  pessoaNome: string
+  ocoId?: number // disable submit when absent
+  onSuccess?: () => void // called after successful submit to refresh timeline
 }
+// #endregion
 
 export function EnviarInformacaoModal({ isOpen, onClose, pessoaNome, ocoId, onSuccess }: Props) {
-  // form state
-  const [informacao, setInformacao] = useState("");
-  const [data, setData] = useState(""); // dd/mm/yyyy
-  const [hora, setHora] = useState(""); // hh:mm (optional, will be embedded)
-  const [local, setLocal] = useState("");
-  const [nome, setNome] = useState("");
-  const [telefone, setTelefone] = useState("");
-  const [email, setEmail] = useState("");
-  const [descricao, setDescricao] = useState("");
-  const [files, setFiles] = useState<File[]>([]);
-  const [errors, setErrors] = useState<string[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // #region Estado
+  const [informacao, setInformacao] = useState("")
+  const [data, setData] = useState("") // dd/mm/yyyy
+  const [hora, setHora] = useState("") // hh:mm (optional, will be embedded)
+  const [local, setLocal] = useState("")
+  const [nome, setNome] = useState("")
+  const [telefone, setTelefone] = useState("")
+  const [email, setEmail] = useState("")
+  const [descricao, setDescricao] = useState("")
+  const [files, setFiles] = useState<File[]>([])
+  const [errors, setErrors] = useState<string[]>([])
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  // #endregion
 
-  // Input handlers with masks to prevent focus loss
+  // #region Handlers/Callbacks
   const handleDataChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatDate(e.target.value);
-    setData(formatted);
-  }, []);
+    const formatted = formatDate(e.target.value)
+    setData(formatted)
+  }, [])
 
   const handleHoraChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatTime(e.target.value);
-    setHora(formatted);
-  }, []);
+    const formatted = formatTime(e.target.value)
+    setHora(formatted)
+  }, [])
 
   const handleTelefoneChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatPhone(e.target.value);
-    setTelefone(formatted);
-  }, []);
+    const formatted = formatPhone(e.target.value)
+    setTelefone(formatted)
+  }, [])
 
   const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatEmail(e.target.value);
-    setEmail(formatted);
-  }, []);
+    const formatted = formatEmail(e.target.value)
+    setEmail(formatted)
+  }, [])
+  // #endregion
 
   const handleInformacaoChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInformacao(e.target.value);
@@ -207,8 +213,8 @@ export function EnviarInformacaoModal({ isOpen, onClose, pessoaNome, ocoId, onSu
               value={informacao}
               onChange={handleInformacaoChange}
               maxLength={1000}
-              rows={4}
-              className="w-full rounded-lg border-0 bg-neutral-50 p-4 text-sm text-neutral-900 placeholder-neutral-500 shadow-sm ring-1 ring-inset ring-neutral-200 transition-all focus:bg-white focus:ring-2 focus:ring-brand-accent/60 focus:ring-offset-0"
+              rows={3}
+              className="w-full rounded-lg border-0 bg-neutral-50 p-3 sm:p-4 text-sm text-neutral-900 placeholder-neutral-500 shadow-sm ring-1 ring-inset ring-neutral-200 transition-all focus:bg-white focus:ring-2 focus:ring-brand-accent/60 focus:ring-offset-0"
               placeholder="Descreva detalhadamente a informação que você tem sobre esta pessoa. Inclua todos os detalhes que considerar relevantes..."
             />
             <div className="absolute bottom-3 right-3 flex items-center gap-2 text-xs">
@@ -220,7 +226,7 @@ export function EnviarInformacaoModal({ isOpen, onClose, pessoaNome, ocoId, onSu
         </div>
 
         {/* Data e Hora */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="space-y-2">
             <label className="block text-sm font-semibold text-neutral-900">
               Data do avistamento *
@@ -232,7 +238,7 @@ export function EnviarInformacaoModal({ isOpen, onClose, pessoaNome, ocoId, onSu
                 value={data}
                 onChange={handleDataChange}
                 maxLength={10}
-                className="w-full h-12 rounded-lg border-0 bg-neutral-50 px-4 text-sm text-neutral-900 shadow-sm ring-1 ring-inset ring-neutral-200 transition-all focus:bg-white focus:ring-2 focus:ring-brand-accent/60"
+                className="w-full h-10 sm:h-12 rounded-lg border-0 bg-neutral-50 px-4 text-sm text-neutral-900 shadow-sm ring-1 ring-inset ring-neutral-200 transition-all focus:bg-white focus:ring-2 focus:ring-brand-accent/60"
               />
             </div>
           </div>
@@ -245,7 +251,7 @@ export function EnviarInformacaoModal({ isOpen, onClose, pessoaNome, ocoId, onSu
               value={hora}
               onChange={handleHoraChange}
               maxLength={8}
-              className="w-full h-12 rounded-lg border-0 bg-neutral-50 px-4 text-sm text-neutral-900 shadow-sm ring-1 ring-inset ring-neutral-200 transition-all focus:bg-white focus:ring-2 focus:ring-brand-accent/60"
+              className="w-full h-10 sm:h-12 rounded-lg border-0 bg-neutral-50 px-4 text-sm text-neutral-900 shadow-sm ring-1 ring-inset ring-neutral-200 transition-all focus:bg-white focus:ring-2 focus:ring-brand-accent/60"
             />
           </div>
         </div>
@@ -262,7 +268,7 @@ export function EnviarInformacaoModal({ isOpen, onClose, pessoaNome, ocoId, onSu
             rows={1}
             maxLength={200}
             style={{ resize: 'vertical', minHeight: '3rem', maxHeight: '8.5rem' }}
-            className="w-full rounded-lg border-0 bg-neutral-50 px-4 py-3 text-sm text-neutral-900 shadow-sm ring-1 ring-inset ring-neutral-200 transition-all focus:bg-white focus:ring-2 focus:ring-brand-accent/60"
+            className="w-full rounded-lg border-0 bg-neutral-50 px-3 sm:px-4 py-2 sm:py-3 text-sm text-neutral-900 shadow-sm ring-1 ring-inset ring-neutral-200 transition-all focus:bg-white focus:ring-2 focus:ring-brand-accent/60"
           />
         </div>
 
@@ -309,7 +315,7 @@ export function EnviarInformacaoModal({ isOpen, onClose, pessoaNome, ocoId, onSu
               </label>
             ) : (
               <div className="space-y-3">
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                   {files.map((file, idx) => {
                     const ext = file.name.split('.').pop()?.toLowerCase();
                     const isPdf = ext === 'pdf';
@@ -383,33 +389,33 @@ export function EnviarInformacaoModal({ isOpen, onClose, pessoaNome, ocoId, onSu
             rows={1}
             maxLength={200}
             style={{ resize: 'vertical', minHeight: '3rem', maxHeight: '8.5rem' }}
-            className="w-full rounded-lg border-0 bg-neutral-50 px-4 py-3 text-sm text-neutral-900 shadow-sm ring-1 ring-inset ring-neutral-200 transition-all focus:bg-white focus:ring-2 focus:ring-brand-accent/60"
+            className="w-full rounded-lg border-0 bg-neutral-50 px-3 sm:px-4 py-2 sm:py-3 text-sm text-neutral-900 shadow-sm ring-1 ring-inset ring-neutral-200 transition-all focus:bg-white focus:ring-2 focus:ring-brand-accent/60"
           />
         </div>
 
         {/* Contato opcional */}
         <div className="rounded-xl bg-gradient-to-br from-neutral-50 to-neutral-100/50 p-4 ring-1 ring-neutral-200">
           <h3 className="text-sm font-medium text-neutral-900 mb-3">Informações de contato (opcional)</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
             <input 
               placeholder="Seu nome" 
               value={nome} 
               onChange={handleNomeChange} 
-              className="h-11 rounded-lg border-0 bg-white px-3 text-sm shadow-sm ring-1 ring-inset ring-neutral-200 transition-all focus:ring-2 focus:ring-brand-accent/60" 
+              className="h-10 sm:h-11 rounded-lg border-0 bg-white px-3 text-sm shadow-sm ring-1 ring-inset ring-neutral-200 transition-all focus:ring-2 focus:ring-brand-accent/60" 
             />
             <input 
               placeholder="(65) 99999-9999" 
               value={telefone} 
               onChange={handleTelefoneChange}
               maxLength={15}
-              className="h-11 rounded-lg border-0 bg-white px-3 text-sm shadow-sm ring-1 ring-inset ring-neutral-200 transition-all focus:ring-2 focus:ring-brand-accent/60" 
+              className="h-10 sm:h-11 rounded-lg border-0 bg-white px-3 text-sm shadow-sm ring-1 ring-inset ring-neutral-200 transition-all focus:ring-2 focus:ring-brand-accent/60" 
             />
             <input 
               type="email"
               placeholder="seu@email.com" 
               value={email} 
               onChange={handleEmailChange} 
-              className="h-11 rounded-lg border-0 bg-white px-3 text-sm shadow-sm ring-1 ring-inset ring-neutral-200 transition-all focus:ring-2 focus:ring-brand-accent/60 sm:col-span-2" 
+              className="h-10 sm:h-11 rounded-lg border-0 bg-white px-3 text-sm shadow-sm ring-1 ring-inset ring-neutral-200 transition-all focus:ring-2 focus:ring-brand-accent/60 lg:col-span-2" 
             />
           </div>
         </div>
@@ -438,16 +444,16 @@ export function EnviarInformacaoModal({ isOpen, onClose, pessoaNome, ocoId, onSu
         )}
 
         {/* Ações */}
-        <div className="flex items-center justify-end gap-3 pt-4 border-t border-neutral-200">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-4 border-t border-neutral-200">
           <button 
-            className="h-11 rounded-lg px-6 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100 disabled:opacity-50 cursor-pointer" 
+            className="h-10 sm:h-11 rounded-lg px-6 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100 disabled:opacity-50 cursor-pointer order-2 sm:order-1" 
             onClick={closeAndReset} 
             disabled={isSubmitting}
           >
             Cancelar
           </button>
           <button
-            className={`h-11 rounded-lg px-6 text-sm font-semibold text-white shadow-sm transition-all cursor-pointer ${
+            className={`h-10 sm:h-11 rounded-lg px-6 text-sm font-semibold text-white shadow-sm transition-all cursor-pointer order-1 sm:order-2 ${
               isDisabled || isSubmitting 
                 ? 'bg-neutral-400 cursor-not-allowed' 
                 : 'bg-brand-primary hover:bg-brand-primary/90 hover:shadow-md active:scale-[0.98]'
@@ -471,5 +477,6 @@ export function EnviarInformacaoModal({ isOpen, onClose, pessoaNome, ocoId, onSu
         </div>
       </div>
     </Modal>
-  );
+  )
+  // #endregion
 }

@@ -1,7 +1,10 @@
+// #region Imports
 import { useEffect, useRef, useState } from 'react'
 import type { EstatisticaPessoaDTO, Sexo, StatusPessoa } from '../../models/PessoaDTO'
 import { Search, RotateCcw, User, Users, Gauge, SlidersHorizontal } from 'lucide-react'
+// #endregion
 
+// #region Tipos/Props
 export interface FiltersPanelProps {
   kpis: EstatisticaPessoaDTO
   filters: {
@@ -15,6 +18,7 @@ export interface FiltersPanelProps {
   onReset: () => void
   onApply?: () => void
 }
+// #endregion
 
 export function FiltersPanel({ kpis, filters, onFilter, onReset, onApply }: FiltersPanelProps) {
   // Quick age presets for a friendlier selection UX (now shown in a popover)
@@ -86,7 +90,7 @@ export function FiltersPanel({ kpis, filters, onFilter, onReset, onApply }: Filt
           </div>
           <div className="relative">
             <label className="text-sm font-medium text-neutral-700">Faixa de idade</label>
-            <div className="mt-1 flex items-center gap-2">
+            <div className="mt-1 flex flex-col gap-2">
               <button
                 type="button"
                 onClick={() => setAgeOpen(v => !v)}
@@ -96,28 +100,33 @@ export function FiltersPanel({ kpis, filters, onFilter, onReset, onApply }: Filt
               >
                 <SlidersHorizontal className="h-4 w-4" /> Opções
               </button>
-              <input
-                type="number"
-                min={0}
-                max={120}
-                className="w-[10ch] h-10 rounded-md border border-neutral-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent transition-shadow hover:shadow-sm text-center"
-                placeholder="Mín"
-                value={filters.faixaIdadeInicial ?? ''}
-                onChange={e => onFilter({ faixaIdadeInicial: e.target.value ? Number(e.target.value) : undefined })}
-              />
-              <span className="text-neutral-500">até</span>
-              <input
-                type="number"
-                min={0}
-                max={120}
-                className="w-[10ch] h-10 rounded-md border border-neutral-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent transition-shadow hover:shadow-sm text-center"
-                placeholder="Máx"
-                value={filters.faixaIdadeFinal ?? ''}
-                onChange={e => onFilter({ faixaIdadeFinal: e.target.value ? Number(e.target.value) : undefined })}
-              />
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <input
+                    type="number"
+                    min={0}
+                    max={120}
+                    className="w-full sm:w-[10ch] h-10 rounded-md border border-neutral-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent transition-shadow hover:shadow-sm text-center"
+                    placeholder="Mín"
+                    value={filters.faixaIdadeInicial ?? ''}
+                    onChange={e => onFilter({ faixaIdadeInicial: e.target.value ? Number(e.target.value) : undefined })}
+                  />
+                  <span className="text-neutral-500 hidden sm:inline">até</span>
+                  <span className="text-neutral-500 sm:hidden">até</span>
+                  <input
+                    type="number"
+                    min={0}
+                    max={120}
+                    className="w-full sm:w-[10ch] h-10 rounded-md border border-neutral-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent transition-shadow hover:shadow-sm text-center"
+                    placeholder="Máx"
+                    value={filters.faixaIdadeFinal ?? ''}
+                    onChange={e => onFilter({ faixaIdadeFinal: e.target.value ? Number(e.target.value) : undefined })}
+                  />
+                </div>
+              </div>
             </div>
             {ageOpen && (
-              <div ref={agePopoverRef} className="absolute z-20 top-full left-0 mt-2 w-[min(26rem,calc(100vw-2rem))] rounded-md border border-neutral-200 bg-white shadow-lg p-3 origin-top-left animate-[fadeIn_0.12s_ease-out]">
+              <div ref={agePopoverRef} className="absolute z-20 top-12 left-0 mt-2 w-[min(26rem,calc(100vw-2rem))] rounded-md border border-neutral-200 bg-white shadow-lg p-3 origin-top-left animate-[fadeIn_0.12s_ease-out]">
                 <div className="text-xs text-neutral-500 mb-2">Selecione rapidamente uma faixa de idade</div>
                 <div className="flex flex-wrap gap-2">
                   {AGE_PRESETS.map((p, idx) => (
@@ -221,4 +230,5 @@ export function FiltersPanel({ kpis, filters, onFilter, onReset, onApply }: Filt
       </section>
     </>
   )
+  // #endregion
 }

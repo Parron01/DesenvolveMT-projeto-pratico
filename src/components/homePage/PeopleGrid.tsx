@@ -1,8 +1,11 @@
+// #region Imports
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { PessoaDTO } from '../../models/PessoaDTO'
 import { CardPessoa } from './CardPessoa'
+// #endregion
 
+// #region Tipos/Props
 export interface PeopleGridProps {
   items: PessoaDTO[]
   totalElements: number
@@ -11,9 +14,14 @@ export interface PeopleGridProps {
   onPageChange: (page: number) => void
   isLoading?: boolean
 }
+// #endregion
 
 export function PeopleGrid({ items, totalElements, totalPages, page, onPageChange, isLoading }: PeopleGridProps) {
+  // #region Hooks
   const navigate = useNavigate()
+  // #endregion
+
+  // #region Derivações/Memos
   const windowPages = useMemo(() => {
     const WINDOW = 7
     if (!totalPages || totalPages <= 0) return [] as number[]
@@ -28,6 +36,9 @@ export function PeopleGrid({ items, totalElements, totalPages, page, onPageChang
     }
     return Array.from({ length: end - start }, (_, i) => start + i)
   }, [page, totalPages])
+  // #endregion
+
+  // #region Render (JSX)
   return (
     <>
       <p className="text-sm text-neutral-600">{totalElements} pessoas encontradas</p>
@@ -108,4 +119,5 @@ export function PeopleGrid({ items, totalElements, totalPages, page, onPageChang
       )}
     </>
   )
+  // #endregion
 }

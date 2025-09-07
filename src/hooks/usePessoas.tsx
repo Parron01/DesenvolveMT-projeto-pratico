@@ -1,9 +1,11 @@
+// #region Imports
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { api } from '../routes/axios'
 import { toast } from 'react-toastify'
 import type { PessoaDTO, EstatisticaPessoaDTO, PagePessoaDTO, FiltrosLista } from '../models/PessoaDTO'
+// #endregion
 
-// #region Context + Provider (inlined in hook)
+// #region Tipos/Props
 interface PeopleContextValue {
   dataset: PessoaDTO[]
   kpis: EstatisticaPessoaDTO | null
@@ -11,16 +13,21 @@ interface PeopleContextValue {
   pageMeta: Pick<PagePessoaDTO, 'totalPages' | 'totalElements' | 'number' | 'size'> | null
   reload: (params?: Partial<FiltrosLista>) => Promise<void>
 }
+// #endregion
 
+// #region Context + Provider (inlined in hook)
 const PeopleContext = createContext<PeopleContextValue | undefined>(undefined)
 
 export function PeopleProvider({ children }: { children: React.ReactNode }) {
+  // #region Estado
   const [dataset, setDataset] = useState<PessoaDTO[]>([])
   const [kpis, setKpis] = useState<EstatisticaPessoaDTO | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [pageMeta, setPageMeta] = useState<Pick<PagePessoaDTO, 'totalPages' | 'totalElements' | 'number' | 'size'> | null>(null)
   const lastParamsRef = useRef<Partial<FiltrosLista> | null>(null)
+  // #endregion
 
+  // #region Handlers/Callbacks
   const reload = useCallback(async (params?: Partial<FiltrosLista>) => {
     setIsLoading(true)
     try {
@@ -46,11 +53,9 @@ export function PeopleProvider({ children }: { children: React.ReactNode }) {
       if (merged.status) queryParams.status = merged.status
 
       const kpisRes = await api.get<EstatisticaPessoaDTO>('/v1/pessoas/aberto/estatistico')
-      console.log('KPIs:', kpisRes.data)
       setKpis(kpisRes.data)
 
       const pessoasRes = await api.get<PagePessoaDTO>('/v1/pessoas/aberto/filtro', { params: queryParams })
-      console.log('Pessoas:', pessoasRes.data)
       setDataset(pessoasRes.data.content)
       setPageMeta({
         totalPages: pessoasRes.data.totalPages,
@@ -59,7 +64,6 @@ export function PeopleProvider({ children }: { children: React.ReactNode }) {
         size: pessoasRes.data.size,
       })
     } catch (e: any) {
-      console.error('Erro na API:', e)
       // Treat 404 as empty results, not error
       if (e.response?.status === 404) {
         setDataset([])
@@ -79,13 +83,21 @@ export function PeopleProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false)
     }
   }, [])
+  // #endregion
 
+  // #region Efeitos
   useEffect(() => {
     reload()
   }, [reload])
+  // #endregion
 
+  // #region Derivações/Memos
   const value: PeopleContextValue = { dataset, kpis, isLoading, pageMeta, reload }
+  // #endregion
+
+  // #region Render (JSX)
   return <PeopleContext.Provider value={value}>{children}</PeopleContext.Provider>
+  // #endregion
 }
 
 function usePeopleContext() {
@@ -97,7 +109,11 @@ function usePeopleContext() {
 
 // #region Hook (data-only)
 export function usePessoas() {
+  // #region Hooks
   const { dataset, kpis, isLoading, pageMeta, reload } = usePeopleContext()
+  // #endregion
+
+  // #region Derivações/Memos
   const people: PessoaDTO[] = useMemo(() => dataset, [dataset])
   const kpisData: EstatisticaPessoaDTO = useMemo(() => {
     if (kpis) return kpis
@@ -109,6 +125,10 @@ export function usePessoas() {
     }
     return { quantPessoasDesaparecidas: desaparecidos, quantPessoasEncontradas: encontrados }
   }, [dataset, kpis])
+  // #endregion
+
+  // #region Render (JSX)
   return { people, isLoading, reload, kpis: kpisData, pageMeta }
+  // #endregion
 }
 // #endregion

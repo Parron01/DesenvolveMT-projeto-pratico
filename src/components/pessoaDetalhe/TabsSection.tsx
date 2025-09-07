@@ -1,5 +1,8 @@
+// #region Imports
 import { User, MapPin, Image as ImageIcon, Info as InfoIcon } from 'lucide-react'
+// #endregion
 
+// #region Tipos/Props
 type TabId = 'pessoais' | 'local' | 'fotos' | 'informacoes'
 
 interface Tab {
@@ -13,15 +16,19 @@ interface TabsSectionProps {
   onTabChange: (tab: TabId) => void
   disabledTabs?: TabId[]
 }
+// #endregion
 
+// #region Constants
 const tabs: Tab[] = [
   { id: 'pessoais', label: 'Pessoais', Icon: User },
   { id: 'local', label: 'Local', Icon: MapPin },
   { id: 'fotos', label: 'Fotos', Icon: ImageIcon },
   { id: 'informacoes', label: 'Informações', Icon: InfoIcon },
 ]
+// #endregion
 
 export function TabsSection({ tab, onTabChange, disabledTabs = [] }: TabsSectionProps) {
+  // #region Render
   return (
     <section>
       <div className="flex rounded-md overflow-hidden border border-neutral-200 bg-white">
@@ -43,4 +50,5 @@ export function TabsSection({ tab, onTabChange, disabledTabs = [] }: TabsSection
       </div>
     </section>
   )
+  // #endregion
 }

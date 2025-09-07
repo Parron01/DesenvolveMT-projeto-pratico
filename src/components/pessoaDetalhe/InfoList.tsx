@@ -1,6 +1,9 @@
+// #region Imports
 import { CalendarDays } from 'lucide-react'
 import type { OcorrenciaInformacaoDTO } from '../../models/OcorrenciaDTO'
+// #endregion
 
+// #region Tipos/Props
 interface InfoListProps {
   infos: OcorrenciaInformacaoDTO[]
   isLoading: boolean
@@ -8,15 +11,19 @@ interface InfoListProps {
   onGoToMedia: (anexo: string) => void
   infoRefs: React.MutableRefObject<Record<number, HTMLLIElement | null>>
 }
+// #endregion
 
+// #region Utils
 function formatDateBR(value?: string) {
   if (!value) return ''
   const d = new Date(value)
   if (isNaN(d.getTime())) return ''
   return d.toLocaleDateString('pt-BR')
 }
+// #endregion
 
 export function InfoList({ infos, isLoading, highlightedInfoId, onGoToMedia, infoRefs }: InfoListProps) {
+  // #region Render
   if (isLoading) {
     return (
       <div className="rounded-lg border bg-white p-6">
@@ -102,4 +109,5 @@ export function InfoList({ infos, isLoading, highlightedInfoId, onGoToMedia, inf
       )}
     </div>
   )
+  // #endregion
 }

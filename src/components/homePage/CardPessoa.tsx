@@ -1,16 +1,27 @@
+// #region Imports
 import { useState } from 'react'
 import { Badge } from '../Badge'
 import type { PessoaDTO } from '../../models/PessoaDTO'
 import { ArrowRight, MapPin, CalendarDays, User } from 'lucide-react'
+// #endregion
 
+// #region Utils
 function getStatus(p: PessoaDTO) {
   return p.ultimaOcorrencia?.dataLocalizacao ? 'LOCALIZADO' : 'DESAPARECIDO'
 }
+// #endregion
 
 export function CardPessoa({ pessoa, onClick }: { pessoa: PessoaDTO; onClick?: () => void }) {
+  // #region Estado
+  const [imgError, setImgError] = useState(false)
+  // #endregion
+
+  // #region Derivações/Memos
   const status = getStatus(pessoa)
   const tone = status === 'LOCALIZADO' ? 'success' : 'danger'
-  const [imgError, setImgError] = useState(false)
+  // #endregion
+
+  // #region Render (JSX)
   return (
     <button
       onClick={onClick}
@@ -62,4 +73,5 @@ export function CardPessoa({ pessoa, onClick }: { pessoa: PessoaDTO; onClick?: (
       </div>
     </button>
   )
+  // #endregion
 }
