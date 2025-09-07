@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import type { PessoaDTO } from '../../models/PessoaDTO'
 import { CardPessoa } from './CardPessoa'
 
@@ -12,6 +13,7 @@ export interface PeopleGridProps {
 }
 
 export function PeopleGrid({ items, totalElements, totalPages, page, onPageChange, isLoading }: PeopleGridProps) {
+  const navigate = useNavigate()
   const windowPages = useMemo(() => {
     const WINDOW = 7
     if (!totalPages || totalPages <= 0) return [] as number[]
@@ -39,7 +41,7 @@ export function PeopleGrid({ items, totalElements, totalPages, page, onPageChang
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
             {items.map(p => (
-              <CardPessoa key={p.id} pessoa={p} onClick={() => { /* future: navigate to detalhe */ }} />
+              <CardPessoa key={p.id} pessoa={p} onClick={() => navigate(`/pessoas/${p.id}`)} />
             ))}
           </div>
           {totalPages > 1 && (
