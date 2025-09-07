@@ -5,7 +5,12 @@ import type { OcorrenciaInformacaoDTO, OcorrenciaDTO } from '../models/Ocorrenci
 import type { PessoaDTO } from '../models/PessoaDTO'
 import { Badge } from '../components/Badge'
 import { toast } from 'react-toastify'
-import { ArrowLeft, CalendarDays, MapPin, Image as ImageIcon, Info as InfoIcon, User as UserIcon, UploadCloud, Eye, ArrowRight, FileText } from 'lucide-react'
+import { ArrowLeft, CalendarDays, MapPin, Info as InfoIcon, User as UserIcon, UploadCloud } from 'lucide-react'
+import { EnviarInformacaoModal } from '../components/EnviarInformacaoModal'
+import { TabsSection } from '../components/pessoaDetalhe/TabsSection'
+import { MediaGrid } from '../components/pessoaDetalhe/MediaGrid'
+import { InfoList } from '../components/pessoaDetalhe/InfoList'
+import { MediaModal } from '../components/pessoaDetalhe/MediaModal'
 
 function getStatus(oco?: OcorrenciaDTO) {
   return oco?.dataLocalizacao ? 'LOCALIZADO' as const : 'DESAPARECIDO' as const
@@ -16,10 +21,6 @@ function formatDateBR(value?: string) {
   const d = new Date(value)
   if (isNaN(d.getTime())) return ''
   return d.toLocaleDateString('pt-BR')
-}
-
-function isPdf(url: string): boolean {
-  return url.toLowerCase().includes('.pdf')
 }
 
 function diffDays(start?: string, end?: string): number | null {
@@ -43,6 +44,7 @@ export default function PessoaDetalhePage() {
 
   const [infos, setInfos] = useState<OcorrenciaInformacaoDTO[]>([])
   const [isLoadingInfos, setIsLoadingInfos] = useState(false)
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
 
   // Estados para modal de imagem e destaque
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null)
@@ -56,15 +58,6 @@ export default function PessoaDetalhePage() {
 
   // Tabs: 'pessoais' | 'local' | 'fotos' | 'informacoes'
   const [tab, setTab] = useState<'pessoais' | 'local' | 'fotos' | 'informacoes'>('pessoais')
-  const tabs = useMemo(
-    () => [
-      { id: 'pessoais' as const, label: 'Pessoais', Icon: UserIcon },
-      { id: 'local' as const, label: 'Local', Icon: MapPin },
-      { id: 'fotos' as const, label: 'Fotos', Icon: ImageIcon },
-      { id: 'informacoes' as const, label: 'Informações', Icon: InfoIcon },
-    ],
-    []
-  )
 
   useEffect(() => {
     let isMounted = true
@@ -132,6 +125,34 @@ export default function PessoaDetalhePage() {
       return () => clearTimeout(timer)
     }
   }, [highlightedImageUrl])
+
+  // Controlar scroll da página quando modal de imagem/PDF está aberto
+  useEffect(() => {
+    if (!selectedImageUrl) return;
+    
+    // Disable page scroll when modal is open
+    const originalOverflow = document.body.style.overflow;
+    const originalPaddingRight = document.body.style.paddingRight;
+    
+    // Get scrollbar width to prevent layout shift
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    
+    document.body.style.overflow = 'hidden';
+    document.body.style.paddingRight = `${scrollbarWidth}px`;
+    
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSelectedImageUrl(null);
+    };
+    document.addEventListener("keydown", onKey);
+    
+    return () => {
+      // Restore page scroll
+      document.body.style.overflow = originalOverflow;
+      document.body.style.paddingRight = originalPaddingRight;
+      
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [selectedImageUrl]);
 
   if (notFound) {
     return (
@@ -225,29 +246,20 @@ export default function PessoaDetalhePage() {
               </div>
             </div>
           ) : null}
-          {/* CTA Enviar informação (wire up in future) */}
+          {/* CTA Enviar informação */}
           <div className="mt-4 flex justify-center">
-            <button className="inline-flex items-center gap-2 rounded-md bg-brand-primary text-white px-5 py-2.5 text-sm shadow-md transition hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0" onClick={() => toast.info('Envio de informação será implementado em breve')}>
+            <button className="inline-flex items-center gap-2 rounded-md bg-brand-primary text-white px-5 py-2.5 text-sm shadow-md transition hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 cursor-pointer" onClick={() => setIsInfoModalOpen(true)}>
               <UploadCloud className="h-4 w-4" /> Enviar informação
             </button>
           </div>
         </section>
 
         {/* Abas */}
-        <section>
-          <div className="flex rounded-md overflow-hidden border border-neutral-200 bg-white">
-            {tabs.map(({ id: tid, label, Icon }) => (
-              <button
-                key={tid}
-                onClick={() => setTab(tid)}
-                className={`flex-1 px-4 py-2 text-sm inline-flex items-center justify-center gap-2 transition ${tab === tid ? 'bg-neutral-100 text-neutral-900 border-b-2 border-brand-accent' : 'text-neutral-600 hover:bg-neutral-50'}`}
-                disabled={tid === 'informacoes' && !oco?.ocoId}
-              >
-                <Icon className="h-4 w-4" />
-                {label}
-              </button>
-            ))}
-          </div>
+        <TabsSection
+          tab={tab}
+          onTabChange={setTab}
+          disabledTabs={oco?.ocoId ? [] : ['informacoes']}
+        />
 
           <div className="mt-4">
             {/* Conteúdo da aba */}
@@ -293,121 +305,61 @@ export default function PessoaDetalhePage() {
                 )}
               </div>
             ) : tab === 'fotos' ? (
-              <div className="rounded-lg border bg-white p-6">
-        <h3 className="text-lg font-semibold text-neutral-900 inline-flex items-center gap-2"><ImageIcon className="h-5 w-5" /> Fotos</h3>
-                <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                  {infos.flatMap(info => (info.anexos || []).map(anexo => ({ url: anexo, info }))).map(({ url, info }, idx) => (
-                    <div
-                      key={idx}
-                      ref={el => { imageRefs.current[url] = el }}
-                      className={`relative group rounded-md overflow-hidden ${highlightedImageUrl === url ? 'ring-4 ring-brand-accent animate-pulse shadow-lg' : ''}`}
-                    >
-                      {isPdf(url) ? (
-                        <div className="w-full h-40 bg-neutral-100 border flex items-center justify-center">
-                          <FileText className="h-12 w-12 text-neutral-500" />
-                        </div>
-                      ) : (
-                        <img src={url} alt={`Anexo ${idx + 1}`} className="w-full h-40 object-cover" loading="lazy" />
-                      )}
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center gap-2">
-                        <button
-                          onClick={() => setSelectedImageUrl(url)}
-                          className="p-2 bg-white/80 rounded-full hover:bg-white transition"
-                          title="Visualizar"
-                        >
-                          <Eye className="h-5 w-5 text-neutral-900" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            setTab('informacoes')
-                            setHighlightedInfoId(info.id ?? 0)
-                            setTimeout(() => {
-                              const el = infoRefs.current[info.id ?? 0]
-                              if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                            }, 100)
-                          }}
-                          className="p-2 bg-white/80 rounded-full hover:bg-white transition"
-                          title="Ver informação relacionada"
-                        >
-                          <ArrowRight className="h-5 w-5 text-neutral-900" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                {infos.flatMap(info => info.anexos || []).length === 0 && (
-          <p className="text-sm text-neutral-600">Sem fotos</p>
-                )}
-              </div>
+              <MediaGrid
+                infos={infos}
+                highlightedImageUrl={highlightedImageUrl}
+                onViewImage={setSelectedImageUrl}
+                onGoToInfo={(infoId) => {
+                  setTab('informacoes')
+                  setHighlightedInfoId(infoId ?? 0)
+                  setTimeout(() => {
+                    const el = infoRefs.current[infoId ?? 0]
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                  }, 100)
+                }}
+                imageRefs={imageRefs}
+              />
             ) : (
-              <div className="rounded-lg border bg-white p-6">
-        <h3 className="text-lg font-semibold text-neutral-900 inline-flex items-center gap-2"><InfoIcon className="h-5 w-5" /> Informações enviadas</h3>
-                {isLoadingInfos ? (
-                  <p className="text-sm text-neutral-600 mt-2">Carregando…</p>
-                ) : infos.length ? (
-                  <div className="mt-4 max-h-[60vh] overflow-y-auto pr-1" role="region" aria-label="Lista de informações enviadas">
-                    <ul className="space-y-4">
-                      {infos.map(info => (
-                        <li
-                          key={info.id ?? `${info.ocoId}-${info.data}-${info.informacao.slice(0, 10)}`}
-                          ref={el => { if (info.id) infoRefs.current[info.id] = el }}
-                          className={`rounded-md border p-4 transition-all duration-500 ${highlightedInfoId === info.id ? 'bg-blue-50 shadow-lg ring-2 ring-blue-300 animate-pulse' : ''}`}
-                        >
-              <div className="text-xs text-neutral-500 inline-flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" /> {formatDateBR(info.data)}</div>
-              <div className="text-sm text-neutral-900 mt-1 whitespace-pre-wrap font-medium">{info.informacao}</div>
-                          {info.anexos?.length ? (
-                            <div className="mt-2 flex flex-wrap gap-2">
-                              {info.anexos.map((anexo, idx) => (
-                                <button
-                                  key={idx}
-                                  onClick={() => {
-                                    setTab('fotos')
-                                    setHighlightedImageUrl(anexo)
-                                    setTimeout(() => {
-                                      const el = imageRefs.current[anexo]
-                                      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                                    }, 100)
-                                  }}
-                                  className="inline-flex items-center rounded-full border border-blue-300 bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 hover:bg-blue-100 transition"
-                                  title={`Ver anexo ${idx + 1}`}
-                                >
-                                  Anexo {idx + 1}
-                                </button>
-                              ))}
-                            </div>
-                          ) : null}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : (
-                  <p className="text-sm text-neutral-600 mt-2">Ainda não há informações enviadas.</p>
-                )}
-              </div>
+              <InfoList
+                infos={infos}
+                isLoading={isLoadingInfos}
+                highlightedInfoId={highlightedInfoId}
+                onGoToMedia={(anexo) => {
+                  setTab('fotos')
+                  setHighlightedImageUrl(anexo)
+                  setTimeout(() => {
+                    const el = imageRefs.current[anexo]
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                  }, 100)
+                }}
+                infoRefs={infoRefs}
+              />
             )}
           </div>
-        </section>
       </main>
 
+      {/* Modal de envio de informação (não interfere nas abas/fotos) */}
+      <EnviarInformacaoModal
+        isOpen={isInfoModalOpen}
+        onClose={() => setIsInfoModalOpen(false)}
+        pessoaNome={pessoa?.nome ?? ''}
+        ocoId={pessoa?.ultimaOcorrencia?.ocoId}
+        onSuccess={async () => {
+          const ocoId = pessoa?.ultimaOcorrencia?.ocoId
+          if (!ocoId) return
+          try {
+            const res = await api.get<OcorrenciaInformacaoDTO[]>(`/v1/ocorrencias/informacoes-desaparecido`, { params: { ocorrenciaId: ocoId } })
+            const data = [...res.data].sort((a, b) => (a.data < b.data ? 1 : a.data > b.data ? -1 : 0))
+            setInfos(data)
+          } catch {}
+        }}
+      />
+
       {/* Modal para visualizar imagem ou PDF */}
-      {selectedImageUrl && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50" onClick={() => setSelectedImageUrl(null)}>
-          <div className="relative max-w-4xl max-h-full p-4">
-            {isPdf(selectedImageUrl) ? (
-              <iframe src={selectedImageUrl} className="w-full h-[80vh]" title="PDF Viewer" />
-            ) : (
-              <img src={selectedImageUrl} alt="Imagem ampliada" className="max-w-full max-h-full object-contain" />
-            )}
-            <button
-              onClick={() => setSelectedImageUrl(null)}
-              className="absolute top-2 right-2 p-2 bg-white/80 rounded-full hover:bg-white transition"
-              title="Fechar"
-            >
-              <ArrowLeft className="h-5 w-5 text-neutral-900 rotate-45" />
-            </button>
-          </div>
-        </div>
-      )}
+      <MediaModal
+        selectedImageUrl={selectedImageUrl}
+        onClose={() => setSelectedImageUrl(null)}
+      />
     </div>
   )
 }

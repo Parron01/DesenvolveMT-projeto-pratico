@@ -90,7 +90,7 @@ export function FiltersPanel({ kpis, filters, onFilter, onReset, onApply }: Filt
               <button
                 type="button"
                 onClick={() => setAgeOpen(v => !v)}
-                className="inline-flex items-center gap-2 h-10 min-w-[13rem] px-4 rounded-md border border-neutral-300 text-sm font-medium text-neutral-800 bg-white shadow-sm hover:bg-neutral-50 hover:shadow transition-colors focus:outline-none focus:ring-2 focus:ring-brand-accent"
+                className="inline-flex items-center gap-2 h-10 min-w-[13rem] px-4 rounded-md border border-neutral-300 text-sm font-medium text-neutral-800 bg-white shadow-sm hover:bg-neutral-50 hover:shadow transition-colors focus:outline-none focus:ring-2 focus:ring-brand-accent cursor-pointer"
                 aria-haspopup="dialog"
                 aria-expanded={ageOpen}
               >
@@ -125,7 +125,7 @@ export function FiltersPanel({ kpis, filters, onFilter, onReset, onApply }: Filt
                       key={p.label}
                       type="button"
                       onClick={() => applyAgePreset(idx)}
-                      className={`h-9 px-3 rounded-full border text-xs font-medium transition-all focus:outline-none focus:ring-2 focus:ring-brand-accent ${
+                      className={`h-9 px-3 rounded-full border text-xs font-medium transition-all focus:outline-none focus:ring-2 focus:ring-brand-accent cursor-pointer ${
                         activeAgeIdx === idx
                           ? 'bg-brand-primary text-white border-brand-primary shadow-sm hover:-translate-y-px'
                           : 'bg-white text-neutral-800 border-neutral-300 hover:bg-neutral-50 hover:-translate-y-px'
@@ -140,14 +140,14 @@ export function FiltersPanel({ kpis, filters, onFilter, onReset, onApply }: Filt
                   <button
                     type="button"
                     onClick={clearAges}
-                    className="inline-flex items-center gap-1 h-9 px-3 rounded-md border border-neutral-300 text-xs text-neutral-800 bg-white hover:bg-neutral-50 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-accent"
+                    className="inline-flex items-center gap-1 h-9 px-3 rounded-md border border-neutral-300 text-xs text-neutral-800 bg-white hover:bg-neutral-50 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-accent cursor-pointer"
                   >
                     <RotateCcw className="h-3.5 w-3.5" /> Limpar faixa
                   </button>
                   <button
                     type="button"
                     onClick={() => setAgeOpen(false)}
-                    className="inline-flex items-center gap-2 h-9 px-4 rounded-md bg-brand-primary text-white text-xs font-semibold shadow-sm hover:shadow-md hover:-translate-y-px transition-all focus:outline-none focus:ring-2 focus:ring-brand-accent"
+                    className="inline-flex items-center gap-2 h-9 px-4 rounded-md bg-brand-primary text-white text-xs font-semibold shadow-sm hover:shadow-md hover:-translate-y-px transition-all focus:outline-none focus:ring-2 focus:ring-brand-accent cursor-pointer"
                   >
                     Aplicar
                   </button>
@@ -171,7 +171,7 @@ export function FiltersPanel({ kpis, filters, onFilter, onReset, onApply }: Filt
             <label className="text-sm font-medium text-neutral-700">Status</label>
             <div className="mt-1 grid grid-cols-3 gap-2">
               <button
-                className={`h-10 md:h-11 rounded-md px-4 text-sm font-semibold transition-all transform focus:outline-none focus:ring-2 focus:ring-brand-accent ${
+                className={`h-10 md:h-11 rounded-md px-4 text-sm font-semibold transition-all transform focus:outline-none focus:ring-2 focus:ring-brand-accent cursor-pointer ${
                   filters.status === 'DESAPARECIDO'
                     ? 'bg-brand-primary text-white shadow-sm hover:-translate-y-px'
                     : 'bg-neutral-100 text-neutral-900 hover:bg-neutral-200 hover:-translate-y-px'
@@ -181,7 +181,7 @@ export function FiltersPanel({ kpis, filters, onFilter, onReset, onApply }: Filt
                 <Users className="inline-block mr-2 h-4 w-4" /> DESAPARECIDO
               </button>
               <button
-                className={`h-10 md:h-11 rounded-md px-4 text-sm font-semibold transition-all transform focus:outline-none focus:ring-2 focus:ring-brand-accent ${
+                className={`h-10 md:h-11 rounded-md px-4 text-sm font-semibold transition-all transform focus:outline-none focus:ring-2 focus:ring-brand-accent cursor-pointer ${
                   filters.status === 'LOCALIZADO'
                     ? 'bg-brand-primary text-white shadow-sm hover:-translate-y-px'
                     : 'bg-neutral-100 text-neutral-900 hover:bg-neutral-200 hover:-translate-y-px'
@@ -191,7 +191,7 @@ export function FiltersPanel({ kpis, filters, onFilter, onReset, onApply }: Filt
                 <User className="inline-block mr-2 h-4 w-4" /> LOCALIZADO
               </button>
               <button
-                className={`h-10 md:h-11 rounded-md px-4 text-sm font-semibold transition-all transform focus:outline-none focus:ring-2 focus:ring-brand-accent ${
+                className={`h-10 md:h-11 rounded-md px-4 text-sm font-semibold transition-all transform focus:outline-none focus:ring-2 focus:ring-brand-accent cursor-pointer ${
                   !filters.status
                     ? 'bg-brand-primary text-white shadow-sm hover:-translate-y-px'
                     : 'bg-neutral-100 text-neutral-900 hover:bg-neutral-200 hover:-translate-y-px'
@@ -204,14 +204,14 @@ export function FiltersPanel({ kpis, filters, onFilter, onReset, onApply }: Filt
           </div>
       <div className="md:col-span-2 flex items-center gap-3 mt-4">
             <button
-        className="inline-flex h-11 items-center gap-2 rounded-md bg-brand-primary px-7 text-base font-semibold text-white shadow-sm transition-all hover:shadow-md hover:-translate-y-px active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-brand-accent"
+        className="inline-flex h-11 items-center gap-2 rounded-md bg-brand-primary px-7 text-base font-semibold text-white shadow-sm transition-all hover:shadow-md hover:-translate-y-px active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-brand-accent cursor-pointer"
               onClick={onApply}
             >
         <Search className="h-4 w-4" /> Buscar
             </button>
             <button
               onClick={onReset}
-        className="inline-flex h-11 items-center gap-2 rounded-md border border-neutral-300 bg-white px-7 text-base font-semibold text-neutral-800 shadow-sm transition-all hover:bg-neutral-50 hover:shadow-md hover:-translate-y-px active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-brand-accent"
+        className="inline-flex h-11 items-center gap-2 rounded-md border border-neutral-300 bg-white px-7 text-base font-semibold text-neutral-800 shadow-sm transition-all hover:bg-neutral-50 hover:shadow-md hover:-translate-y-px active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-brand-accent cursor-pointer"
             >
         <RotateCcw className="h-4 w-4" /> Limpar filtros
             </button>

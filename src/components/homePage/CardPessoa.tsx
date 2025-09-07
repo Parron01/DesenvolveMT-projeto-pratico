@@ -14,7 +14,7 @@ export function CardPessoa({ pessoa, onClick }: { pessoa: PessoaDTO; onClick?: (
   return (
     <button
       onClick={onClick}
-      className="group w-full text-left rounded-lg border border-neutral-200 bg-white p-4 shadow-sm transition hover:shadow-lg hover:border-brand-primary/40 focus:ring-2 focus:ring-brand-accent focus:outline-none relative"
+      className="group w-full text-left rounded-lg border border-neutral-200 bg-white p-4 shadow-sm transition hover:shadow-lg hover:border-brand-primary/40 focus:ring-2 focus:ring-brand-accent focus:outline-none relative cursor-pointer"
       title="Ver detalhes"
     >
       <div className="flex items-center gap-4">

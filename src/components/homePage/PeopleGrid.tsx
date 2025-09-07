@@ -48,7 +48,7 @@ export function PeopleGrid({ items, totalElements, totalPages, page, onPageChang
             <nav className="flex items-center justify-center gap-1 mt-6" aria-label="Paginação">
               {/* First */}
               <button
-                className="px-2 py-1 text-sm rounded border border-neutral-300 disabled:opacity-50"
+                className="px-2 py-1 text-sm rounded border border-neutral-300 disabled:opacity-50 cursor-pointer"
                 disabled={page === 0}
                 onClick={() => onPageChange(0)}
                 aria-label="Primeira página"
@@ -58,7 +58,7 @@ export function PeopleGrid({ items, totalElements, totalPages, page, onPageChang
               </button>
               {/* Prev */}
               <button
-                className="px-2 py-1 text-sm rounded border border-neutral-300 disabled:opacity-50"
+                className="px-2 py-1 text-sm rounded border border-neutral-300 disabled:opacity-50 cursor-pointer"
                 disabled={page === 0}
                 onClick={() => onPageChange(Math.max(0, page - 1))}
                 aria-label="Página anterior"
@@ -70,7 +70,7 @@ export function PeopleGrid({ items, totalElements, totalPages, page, onPageChang
               {windowPages.map(pn => (
                 <button
                   key={pn}
-                  className={`px-3 py-1 text-sm rounded border ${pn === page ? 'bg-brand-primary text-white border-brand-primary' : 'border-neutral-300 hover:border-brand-primary/60'}`}
+                  className={`px-3 py-1 text-sm rounded border ${pn === page ? 'bg-brand-primary text-white border-brand-primary' : 'border-neutral-300 hover:border-brand-primary/60'} cursor-pointer`}
                   onClick={() => onPageChange(pn)}
                   aria-current={pn === page ? 'page' : undefined}
                 >
@@ -79,7 +79,7 @@ export function PeopleGrid({ items, totalElements, totalPages, page, onPageChang
               ))}
               {/* Next */}
               <button
-                className="px-2 py-1 text-sm rounded border border-neutral-300 disabled:opacity-50"
+                className="px-2 py-1 text-sm rounded border border-neutral-300 disabled:opacity-50 cursor-pointer"
                 disabled={page === totalPages - 1}
                 onClick={() => onPageChange(Math.min(totalPages - 1, page + 1))}
                 aria-label="Próxima página"
@@ -89,7 +89,7 @@ export function PeopleGrid({ items, totalElements, totalPages, page, onPageChang
               </button>
               {/* Last */}
               <button
-                className="px-2 py-1 text-sm rounded border border-neutral-300 disabled:opacity-50"
+                className="px-2 py-1 text-sm rounded border border-neutral-300 disabled:opacity-50 cursor-pointer"
                 disabled={page === totalPages - 1}
                 onClick={() => onPageChange(totalPages - 1)}
                 aria-label="Última página"
