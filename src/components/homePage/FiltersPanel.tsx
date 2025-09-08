@@ -211,8 +211,9 @@ export function FiltersPanel({ kpis, filters, onFilter, onReset, onApply }: Filt
               </button>
             </div>
           </div>
-      <div className="md:col-span-2 flex items-center gap-3 mt-4">
-            <button
+      <div className="md:col-span-2 flex flex-col sm:flex-row sm:items-center gap-3 mt-4">
+            <div className="flex items-center gap-3">
+              <button
         className="inline-flex h-11 items-center gap-2 rounded-md bg-brand-primary px-7 text-base font-semibold text-white shadow-sm transition-all hover:shadow-md hover:-translate-y-px active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-brand-accent cursor-pointer"
               onClick={onApply}
             >
@@ -224,7 +225,8 @@ export function FiltersPanel({ kpis, filters, onFilter, onReset, onApply }: Filt
             >
         <RotateCcw className="h-4 w-4" /> Limpar filtros
             </button>
-            <span className="ml-auto text-xs text-neutral-500">Use os filtros para refinar sua busca por pessoas desaparecidas</span>
+            </div>
+            <span className="text-xs text-neutral-500 sm:ml-auto">Use os filtros para refinar sua busca por pessoas desaparecidas</span>
           </div>
         </div>
       </section>

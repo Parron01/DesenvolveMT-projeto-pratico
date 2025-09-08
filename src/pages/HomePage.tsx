@@ -102,7 +102,6 @@ export function HomePage() {
             <div className="h-9 w-9 rounded-full bg-neutral-900 text-white grid place-items-center text-sm font-bold">MT</div>
             <div>
               <h1 className="text-lg font-semibold text-neutral-900">Pessoas Desaparecidas</h1>
-              <p className="text-xs text-neutral-500">Procuradoria de Justiça Criminal - Mato Grosso</p>
             </div>
           </div>
         </div>
